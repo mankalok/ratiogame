@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>比例概念遊戲：一份有幾大？</title>
+<title>比例概念遊戲 v2：參照對比版</title>
 <style>
     body {
         font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
@@ -51,25 +51,69 @@
         border-radius: 20px;
         box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         width: 90%;
-        max-width: 800px;
+        max-width: 900px; /* Widened for the ruler */
         text-align: center;
-        min-height: 400px;
+        min-height: 450px;
     }
     .game-container.active { display: block; }
 
     /* --- GAME 1 STYLES --- */
     .slider-container { margin: 20px 0; }
-    input[type=range] { width: 300px; }
+    input[type=range] { width: 300px; cursor: pointer; }
     
     .screen-wrapper {
         display: flex;
         justify-content: center;
-        align-items: center;
-        margin-top: 20px;
+        align-items: center; /* Center vertically to compare height */
+        margin-top: 30px;
         overflow: auto;
-        min-height: 300px;
-        border: 2px dashed #ccc;
+        min-height: 400px; /* Fixed container height */
+        border: 2px dashed #e0e0e0;
         position: relative;
+        background-color: #fafafa;
+        padding: 20px;
+    }
+
+    /* The Fixed Reference Ruler */
+    .static-ruler {
+        width: 40px;
+        height: 250px; /* Fixed Height Reference */
+        background-color: #FF9800;
+        margin-right: 40px; /* Space between ruler and TV */
+        position: relative;
+        border: 2px solid #E65100;
+        border-radius: 4px;
+        flex-shrink: 0; /* Don't shrink when TV gets big */
+        
+        /* Ruler markings pattern */
+        background-image: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 19px,
+            #fff 20px
+        );
+        box-shadow: 5px 5px 10px rgba(0,0,0,0.2);
+    }
+    
+    .static-ruler::before {
+        content: "固定高度參照尺";
+        position: absolute;
+        width: 150px;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 14px;
+        font-weight: bold;
+        color: #E65100;
+    }
+    
+    .static-ruler::after {
+        content: "↕ 不會變";
+        position: absolute;
+        bottom: -30px;
+        left: 0; right: 0;
+        font-size: 12px;
+        color: #E65100;
     }
 
     #tv-screen {
@@ -92,9 +136,10 @@
         padding: 2px 5px;
         border-radius: 4px;
         font-size: 14px;
+        white-space: nowrap;
     }
     #label-w { bottom: -30px; left: 50%; transform: translateX(-50%); color: #333; background: #ddd;}
-    #label-h { left: -40px; top: 50%; transform: translateY(-50%); color: #333; background: #ddd;}
+    #label-h { right: -90px; top: 50%; transform: translateY(-50%); color: #333; background: #ddd;}
     
     .unit-box-demo {
         width: 30px; height: 30px;
@@ -105,7 +150,7 @@
         border: 1px solid #fff;
     }
 
-    /* --- GAME 2 STYLES --- */
+    /* --- GAME 2 STYLES (Unchanged) --- */
     .potion-lab {
         display: flex;
         justify-content: space-around;
@@ -129,11 +174,11 @@
         overflow: hidden;
         background: #fff;
         display: flex;
-        flex-direction: column-reverse; /* Fill from bottom */
+        flex-direction: column-reverse; 
     }
     
     #human-beaker { width: 60px; height: 160px; }
-    #giant-beaker { width: 150px; height: 300px; } /* Proportioned bigger */
+    #giant-beaker { width: 150px; height: 300px; } 
 
     .liquid-part {
         width: 100%;
@@ -177,7 +222,7 @@
 </head>
 <body>
 
-    <h1>🎮 比例大發現 🎮</h1>
+    <h1>🎮 比例大發現 v2</h1>
     
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('game1')">📺 縮放電視機 (16:9)</button>
@@ -185,17 +230,19 @@
     </div>
 
     <div id="game1" class="game-container active">
-        <h2>概念：16比9 係講緊「形狀」，唔係講緊「大細」</h2>
-        <p>試下拖拉下面個圓點，改變「一格」嘅大細。留意下：無論部電視變到幾大，佢都係由 <b>16格 x 9格</b> 組成㗎！</p>
+        <h2>概念：同一個比例，不同的大小</h2>
+        <p>旁邊有一把橙色的<b>固定尺</b>。試下調整「一格」嘅大細，睇下部電視會比把尺大定係細？</p>
         
         <div class="slider-container">
             <label for="unitSize">一格有幾大 (Unit Size)：</label>
-            <input type="range" id="unitSize" min="10" max="40" value="20" oninput="updateTV()">
-            <span id="unitVal">20px</span>
+            <input type="range" id="unitSize" min="10" max="40" value="15" oninput="updateTV()">
+            <span id="unitVal">15px</span>
             <div class="unit-box-demo" id="demoBox"></div>
         </div>
 
         <div class="screen-wrapper">
+            <div class="static-ruler"></div>
+
             <div id="tv-screen">
                 <div id="label-w" class="dimension-label">闊度: 16格</div>
                 <div id="label-h" class="dimension-label">高度: 9格</div>
@@ -239,7 +286,6 @@
         document.querySelectorAll('.game-container').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        // Update active button style
         if(tabId === 'game1') document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
         else document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
     }
@@ -256,18 +302,15 @@
         demoBox.style.height = size + "px";
 
         // Update TV dimensions
-        // 16:9 Ratio
         const width = size * 16;
         const height = size * 9;
 
         screen.style.width = width + "px";
         screen.style.height = height + "px";
-        
-        // The magic: background-size creates the grid lines visual
         screen.style.backgroundSize = `${size}px ${size}px`;
 
         document.getElementById('tv-stats').innerText = 
-            `而家部電視係： ${width}px (闊) x ${height}px (高)。但比例依然係 16:9！`;
+            `電視機現時尺寸： ${width}px (闊) x ${height}px (高)`;
     }
 
     // Initialize Game 1
@@ -275,8 +318,8 @@
 
 
     // --- GAME 2 LOGIC ---
-    let liquidCount = 0; // Max 4 parts (1 yellow + 3 blue)
-    let mixture = []; // array of 'yellow' or 'blue'
+    let liquidCount = 0; 
+    let mixture = []; 
 
     function addLiquid(color) {
         if (liquidCount >= 4) {
@@ -294,21 +337,17 @@
         const humanBeaker = document.getElementById('human-beaker');
         const giantBeaker = document.getElementById('giant-beaker');
         
-        // Clear current
         humanBeaker.innerHTML = '';
         giantBeaker.innerHTML = '';
 
-        // Add parts
         mixture.forEach(color => {
-            // Human part (smaller height)
             let hPart = document.createElement('div');
             hPart.className = 'liquid-part';
             hPart.style.backgroundColor = color === 'yellow' ? '#FFC107' : '#2196F3';
-            hPart.style.height = '25%'; // 4 parts = 100%
+            hPart.style.height = '25%'; 
             hPart.innerText = "1份";
             humanBeaker.appendChild(hPart);
 
-            // Giant part (same logic, just fills parent which is bigger)
             let gPart = document.createElement('div');
             gPart.className = 'liquid-part';
             gPart.style.backgroundColor = color === 'yellow' ? '#FFC107' : '#2196F3';
@@ -321,7 +360,6 @@
     function mixPotion() {
         if (mixture.length === 0) return;
 
-        // Check ratio
         let yellowCount = mixture.filter(c => c === 'yellow').length;
         let blueCount = mixture.filter(c => c === 'blue').length;
 
@@ -329,25 +367,21 @@
         const giantParts = document.querySelectorAll('#giant-beaker .liquid-part');
 
         if (yellowCount === 1 && blueCount === 3) {
-            // SUCCESS ANIMATION
             document.getElementById('resultMsg').innerText = "✅ 成功！大家都變成一樣嘅綠色啦！";
-            
-            changeColor(humanParts, '#4CAF50'); // Green
-            changeColor(giantParts, '#4CAF50'); // Green
+            changeColor(humanParts, '#4CAF50'); 
+            changeColor(giantParts, '#4CAF50'); 
         } else {
-            // FAIL ANIMATION
             document.getElementById('resultMsg').innerText = "⚠️ 哎呀！比例唔啱，變咗啡色污水...";
             document.getElementById('resultMsg').style.color = '#795548';
-            
-            changeColor(humanParts, '#795548'); // Brown
-            changeColor(giantParts, '#795548'); // Brown
+            changeColor(humanParts, '#795548'); 
+            changeColor(giantParts, '#795548'); 
         }
     }
 
     function changeColor(elements, color) {
         elements.forEach(el => {
             el.style.backgroundColor = color;
-            el.style.borderTop = 'none'; // remove separation lines
+            el.style.borderTop = 'none'; 
             el.innerText = "";
         });
     }
