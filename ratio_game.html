@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>比例概念遊戲：一份有幾大？</title>
+<style>
+    body {
+        font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
+        background-color: #f0f8ff;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    h1 { color: #333; margin-bottom: 10px; }
+    p { color: #555; max-width: 600px; text-align: center; }
+
+    /* Tab Navigation */
+    .tabs {
+        display: flex;
+        margin-bottom: 20px;
+        background: #fff;
+        border-radius: 30px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        padding: 5px;
+    }
+    .tab-btn {
+        padding: 10px 25px;
+        border: none;
+        background: none;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 25px;
+        transition: 0.3s;
+        font-weight: bold;
+        color: #777;
+    }
+    .tab-btn.active {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    /* Game Containers */
+    .game-container {
+        display: none;
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        width: 90%;
+        max-width: 800px;
+        text-align: center;
+        min-height: 400px;
+    }
+    .game-container.active { display: block; }
+
+    /* --- GAME 1 STYLES --- */
+    .slider-container { margin: 20px 0; }
+    input[type=range] { width: 300px; }
+    
+    .screen-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        overflow: auto;
+        min-height: 300px;
+        border: 2px dashed #ccc;
+        position: relative;
+    }
+
+    #tv-screen {
+        background-color: #333;
+        transition: width 0.2s, height 0.2s, background-size 0.2s;
+        position: relative;
+        /* Grid lines logic */
+        background-image: 
+            linear-gradient(#555 1px, transparent 1px),
+            linear-gradient(90deg, #555 1px, transparent 1px);
+        border: 5px solid #000;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    
+    .dimension-label {
+        position: absolute;
+        color: white;
+        font-weight: bold;
+        background: rgba(0,0,0,0.7);
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    #label-w { bottom: -30px; left: 50%; transform: translateX(-50%); color: #333; background: #ddd;}
+    #label-h { left: -40px; top: 50%; transform: translateY(-50%); color: #333; background: #ddd;}
+    
+    .unit-box-demo {
+        width: 30px; height: 30px;
+        background: #4CAF50;
+        display: inline-block;
+        margin: 0 5px;
+        vertical-align: middle;
+        border: 1px solid #fff;
+    }
+
+    /* --- GAME 2 STYLES --- */
+    .potion-lab {
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-end;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .character-zone {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 10px;
+    }
+    
+    .beaker {
+        border: 4px solid #333;
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        position: relative;
+        overflow: hidden;
+        background: #fff;
+        display: flex;
+        flex-direction: column-reverse; /* Fill from bottom */
+    }
+    
+    #human-beaker { width: 60px; height: 160px; }
+    #giant-beaker { width: 150px; height: 300px; } /* Proportioned bigger */
+
+    .liquid-part {
+        width: 100%;
+        transition: height 0.5s, background-color 0.5s;
+        border-top: 1px solid rgba(255,255,255,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .controls { margin-top: 20px; }
+    .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        margin: 5px;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+    }
+    .btn:active { transform: translateY(4px); box-shadow: none; }
+    .btn-yellow { background-color: #FFC107; color: #333; }
+    .btn-blue { background-color: #2196F3; }
+    .btn-mix { background-color: #4CAF50; font-size: 20px; padding: 15px 30px; }
+    .btn-reset { background-color: #f44336; }
+
+    .result-text {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 20px;
+        height: 30px;
+        color: #4CAF50;
+    }
+
+</style>
+</head>
+<body>
+
+    <h1>🎮 比例大發現 🎮</h1>
+    
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('game1')">📺 縮放電視機 (16:9)</button>
+        <button class="tab-btn" onclick="switchTab('game2')">🧪 巨人魔法水 (1:3)</button>
+    </div>
+
+    <div id="game1" class="game-container active">
+        <h2>概念：16比9 係講緊「形狀」，唔係講緊「大細」</h2>
+        <p>試下拖拉下面個圓點，改變「一格」嘅大細。留意下：無論部電視變到幾大，佢都係由 <b>16格 x 9格</b> 組成㗎！</p>
+        
+        <div class="slider-container">
+            <label for="unitSize">一格有幾大 (Unit Size)：</label>
+            <input type="range" id="unitSize" min="10" max="40" value="20" oninput="updateTV()">
+            <span id="unitVal">20px</span>
+            <div class="unit-box-demo" id="demoBox"></div>
+        </div>
+
+        <div class="screen-wrapper">
+            <div id="tv-screen">
+                <div id="label-w" class="dimension-label">闊度: 16格</div>
+                <div id="label-h" class="dimension-label">高度: 9格</div>
+            </div>
+        </div>
+        <p id="tv-stats" style="margin-top:10px; font-weight:bold; color:#2196F3;"></p>
+    </div>
+
+    <div id="game2" class="game-container">
+        <h2>概念：「一份」可以係細杯，亦可以係大桶</h2>
+        <p>配方係：<b>1份黃色 + 3份藍色 = 變綠色</b></p>
+        <p>請你幫人類同巨人一齊調配！雖然佢哋用嘅杯唔同大細，但比例一樣，結果會點呢？</p>
+
+        <div class="controls">
+            <button class="btn btn-yellow" onclick="addLiquid('yellow')">🟡 加 1 份黃色</button>
+            <button class="btn btn-blue" onclick="addLiquid('blue')">🔵 加 1 份藍色</button>
+            <button class="btn btn-mix" onclick="mixPotion()">✨ 攪拌變身！</button>
+            <button class="btn btn-reset" onclick="resetPotion()">❌ 重嚟</button>
+        </div>
+
+        <div class="result-text" id="resultMsg"></div>
+
+        <div class="potion-lab">
+            <div class="character-zone">
+                <h3>👶🏻 人類嘅杯</h3>
+                <p>(1份 = 10ml)</p>
+                <div id="human-beaker" class="beaker"></div>
+            </div>
+
+            <div class="character-zone">
+                <h3>🧟 巨人嘅桶</h3>
+                <p>(1份 = 50ml)</p>
+                <div id="giant-beaker" class="beaker"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- GENERAL ---
+    function switchTab(tabId) {
+        document.querySelectorAll('.game-container').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        // Update active button style
+        if(tabId === 'game1') document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+        else document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+    }
+
+    // --- GAME 1 LOGIC ---
+    function updateTV() {
+        const size = document.getElementById('unitSize').value;
+        const screen = document.getElementById('tv-screen');
+        const demoBox = document.getElementById('demoBox');
+        
+        // Update demo box
+        document.getElementById('unitVal').innerText = size + "px";
+        demoBox.style.width = size + "px";
+        demoBox.style.height = size + "px";
+
+        // Update TV dimensions
+        // 16:9 Ratio
+        const width = size * 16;
+        const height = size * 9;
+
+        screen.style.width = width + "px";
+        screen.style.height = height + "px";
+        
+        // The magic: background-size creates the grid lines visual
+        screen.style.backgroundSize = `${size}px ${size}px`;
+
+        document.getElementById('tv-stats').innerText = 
+            `而家部電視係： ${width}px (闊) x ${height}px (高)。但比例依然係 16:9！`;
+    }
+
+    // Initialize Game 1
+    updateTV();
+
+
+    // --- GAME 2 LOGIC ---
+    let liquidCount = 0; // Max 4 parts (1 yellow + 3 blue)
+    let mixture = []; // array of 'yellow' or 'blue'
+
+    function addLiquid(color) {
+        if (liquidCount >= 4) {
+            document.getElementById('resultMsg').innerText = "杯滿啦！快啲㩒攪拌啦！";
+            return;
+        }
+
+        mixture.push(color);
+        liquidCount++;
+        renderLiquids();
+        document.getElementById('resultMsg').innerText = "";
+    }
+
+    function renderLiquids() {
+        const humanBeaker = document.getElementById('human-beaker');
+        const giantBeaker = document.getElementById('giant-beaker');
+        
+        // Clear current
+        humanBeaker.innerHTML = '';
+        giantBeaker.innerHTML = '';
+
+        // Add parts
+        mixture.forEach(color => {
+            // Human part (smaller height)
+            let hPart = document.createElement('div');
+            hPart.className = 'liquid-part';
+            hPart.style.backgroundColor = color === 'yellow' ? '#FFC107' : '#2196F3';
+            hPart.style.height = '25%'; // 4 parts = 100%
+            hPart.innerText = "1份";
+            humanBeaker.appendChild(hPart);
+
+            // Giant part (same logic, just fills parent which is bigger)
+            let gPart = document.createElement('div');
+            gPart.className = 'liquid-part';
+            gPart.style.backgroundColor = color === 'yellow' ? '#FFC107' : '#2196F3';
+            gPart.style.height = '25%'; 
+            gPart.innerText = "1大份";
+            giantBeaker.appendChild(gPart);
+        });
+    }
+
+    function mixPotion() {
+        if (mixture.length === 0) return;
+
+        // Check ratio
+        let yellowCount = mixture.filter(c => c === 'yellow').length;
+        let blueCount = mixture.filter(c => c === 'blue').length;
+
+        const humanParts = document.querySelectorAll('#human-beaker .liquid-part');
+        const giantParts = document.querySelectorAll('#giant-beaker .liquid-part');
+
+        if (yellowCount === 1 && blueCount === 3) {
+            // SUCCESS ANIMATION
+            document.getElementById('resultMsg').innerText = "✅ 成功！大家都變成一樣嘅綠色啦！";
+            
+            changeColor(humanParts, '#4CAF50'); // Green
+            changeColor(giantParts, '#4CAF50'); // Green
+        } else {
+            // FAIL ANIMATION
+            document.getElementById('resultMsg').innerText = "⚠️ 哎呀！比例唔啱，變咗啡色污水...";
+            document.getElementById('resultMsg').style.color = '#795548';
+            
+            changeColor(humanParts, '#795548'); // Brown
+            changeColor(giantParts, '#795548'); // Brown
+        }
+    }
+
+    function changeColor(elements, color) {
+        elements.forEach(el => {
+            el.style.backgroundColor = color;
+            el.style.borderTop = 'none'; // remove separation lines
+            el.innerText = "";
+        });
+    }
+
+    function resetPotion() {
+        liquidCount = 0;
+        mixture = [];
+        document.getElementById('human-beaker').innerHTML = '';
+        document.getElementById('giant-beaker').innerHTML = '';
+        document.getElementById('resultMsg').innerText = '';
+        document.getElementById('resultMsg').style.color = '#4CAF50';
+    }
+
+</script>
+
+</body>
+</html>
